@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:new_tictacto/game/board.dart';
 import 'package:new_tictacto/game/player.dart';
@@ -12,12 +10,10 @@ void main() {
 class BattleshipApp extends StatelessWidget {
   static String routeName = '/board2-page';
   late Game game;
-
   bool notPlay = false;
 
   BattleshipApp({Key? key}) : super(key: key) {
-    game = Game();
-    game.start();
+    game = Game()..start();
   }
 
   @override
@@ -30,15 +26,15 @@ class BattleshipApp extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 60),
-              const Text(
+              SizedBox(height: 20),
+              Text(
                 'Your Board',
                 style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-              const SizedBox(height: 20),
               Expanded(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -53,15 +49,15 @@ class BattleshipApp extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-              const Text(
+              SizedBox(height: 20),
+              Text(
                 'Computer\'s Board',
                 style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-              const SizedBox(height: 20),
               Expanded(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -128,8 +124,8 @@ class _SquareWidgetState extends State<SquareWidget> {
         setState(() {});
       },
       child: Container(
-        width: 30,
-        height: 30,
+        width: 20,
+        height: 20,
         decoration: BoxDecoration(
           color: determineColour(widget.square),
           border: Border.all(color: Colors.black),
@@ -149,11 +145,7 @@ class _SquareWidgetState extends State<SquareWidget> {
       case SquareStatus.empty:
         return Colors.grey;
       case SquareStatus.ship:
-        if (widget.visibleShips) {
-          return Colors.green;
-        } else {
-          return Colors.grey;
-        }
+        return widget.visibleShips ? Colors.green : Colors.grey;
       case SquareStatus.hit:
         return Colors.orange;
       case SquareStatus.miss:

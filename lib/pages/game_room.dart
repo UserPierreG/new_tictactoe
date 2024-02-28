@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:new_tictacto/pages/userInterface.dart';
 import 'package:new_tictacto/services/databaseServices.dart';
 
 class GameRoom extends StatefulWidget {
@@ -36,7 +37,7 @@ class _GameRoomState extends State<GameRoom> {
             return _buildErrorScreen(snapshot.error.toString());
           } else {
             bool isFull = snapshot.data ?? false;
-            return isFull ? _buildOrangeScreen() : _buildWaitingScreen();
+            return isFull ? BattleshipApp() : _buildWaitingScreen();
           }
         },
       ),
@@ -68,21 +69,6 @@ class _GameRoomState extends State<GameRoom> {
           ),
           // You can display more information about the room here
         ],
-      ),
-    );
-  }
-
-  Widget _buildOrangeScreen() {
-    return Center(
-      child: Container(
-        color: Colors.orange,
-        child: const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Another user has joined the room.'),
-            // You can display more information about the room here
-          ],
-        ),
       ),
     );
   }
