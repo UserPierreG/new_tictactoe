@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:new_tictacto/firebase_options.dart';
+import 'package:new_tictacto/pages/userInterface.dart';
 import 'package:new_tictacto/pages/create_room.dart';
 import 'package:new_tictacto/pages/home_page.dart';
 import 'package:new_tictacto/pages/join_room.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
         MainMenuScreen.routeName: (context) => const MainMenuScreen(),
         JoinRoomScreen.routeName: (context) => JoinRoomScreen(),
         CreateRoomScreen.routeName: (context) => CreateRoomScreen(),
-        // GameScreen.routeName: (context) => const GameScreen(),
+        BattleshipApp.routeName: (context) => BattleshipApp(),
       },
       initialRoute: MainMenuScreen.routeName,
     );
