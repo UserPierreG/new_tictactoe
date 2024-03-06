@@ -51,7 +51,7 @@ class BattleshipApp extends StatelessWidget {
               ),
               SizedBox(height: 20),
               Text(
-                'Computer\'s Board',
+                'Opponent\'s Board',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

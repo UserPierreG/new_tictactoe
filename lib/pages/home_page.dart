@@ -29,7 +29,7 @@ class MainMenuScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'TicTacToe',
+              'Battle Ship',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
