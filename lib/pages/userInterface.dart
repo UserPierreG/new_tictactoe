@@ -124,8 +124,8 @@ class _SquareWidgetState extends State<SquareWidget> {
         setState(() {});
       },
       child: Container(
-        width: 20,
-        height: 20,
+        width: 25,
+        height: 25,
         decoration: BoxDecoration(
           color: determineColour(widget.square),
           border: Border.all(color: Colors.black),
