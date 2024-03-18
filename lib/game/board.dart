@@ -7,11 +7,11 @@ import 'package:new_tictacto/game/ship.dart';
 import 'package:new_tictacto/game/square.dart';
 
 class Board {
-  late int rows;
-  late int cols;
-  late List<List<Square>> cells;
-  late int shipsLeft;
-  late List<Ship> ships;
+  late final int rows;
+  late final int cols;
+  late final List<List<Square>> cells;
+  late int shipsLeft; //todo
+  late final List<Ship> ships;
 
   Board() {
     rows = 10;

@@ -1,14 +1,18 @@
 import 'package:new_tictacto/game/square.dart';
 
 class Ship {
-  String name;
-  late String code;
+  final String name;
+  late final String code;
   int size;
   List<Square>? ship;
 
   Ship(this.name, this.size) {
     code = name[0];
     ship = [];
+  }
+
+  void hitShip() {
+    size--;
   }
 
   addPosition(Square square) {

@@ -3,12 +3,12 @@
 import 'package:new_tictacto/models/player.dart';
 
 class Room {
-  int currentRound;
-  bool isFull;
-  int maxRounds;
-  int turnIndex;
-  Player player1;
-  Player? player2;
+  final int currentRound;
+  final bool isFull;
+  final int maxRounds;
+  final int turnIndex;
+  final Player player1;
+  final Player? player2;
 
   Room({
     this.currentRound = 1, // default value for currentRound

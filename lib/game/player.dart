@@ -1,9 +1,9 @@
 import 'package:new_tictacto/game/board.dart';
 
 class Player {
-  String name;
+  final String name;
   Board board;
-  bool isCPU;
+  final bool isCPU;
 
   Player(this.name, this.board, this.isCPU);
 

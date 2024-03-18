@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:new_tictacto/firebase_options.dart';
+import 'package:new_tictacto/pages/multiplayerGame.dart';
 import 'package:new_tictacto/pages/userInterface.dart';
 import 'package:new_tictacto/pages/create_room.dart';
 import 'package:new_tictacto/pages/home_page.dart';
@@ -13,9 +14,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-  );
-  FirebaseFirestore.instance.settings = const Settings(
-    persistenceEnabled: true,
   );
   runApp(const MyApp());
 }
@@ -31,6 +29,11 @@ class MyApp extends StatelessWidget {
         JoinRoomScreen.routeName: (context) => JoinRoomScreen(),
         CreateRoomScreen.routeName: (context) => CreateRoomScreen(),
         BattleshipApp.routeName: (context) => BattleshipApp(),
+        MultiplayerApp.routeName: (context) => MultiplayerApp(
+              roomId: '',
+              isTurn: true,
+              player: '',
+            ),
       },
       initialRoute: MainMenuScreen.routeName,
     );

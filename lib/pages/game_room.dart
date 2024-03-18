@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:new_tictacto/pages/multiplayerGame.dart';
 import 'package:new_tictacto/pages/userInterface.dart';
 import 'package:new_tictacto/services/databaseServices.dart';
 
 class GameRoom extends StatefulWidget {
   final String roomId;
+  bool isTurn;
+  final String player;
 
-  GameRoom({Key? key, required this.roomId}) : super(key: key);
+  GameRoom(
+      {Key? key,
+      required this.roomId,
+      required this.isTurn,
+      required this.player})
+      : super(key: key);
 
   @override
   _GameRoomState createState() => _GameRoomState();
@@ -37,7 +45,13 @@ class _GameRoomState extends State<GameRoom> {
             return _buildErrorScreen(snapshot.error.toString());
           } else {
             bool isFull = snapshot.data ?? false;
-            return isFull ? BattleshipApp() : _buildWaitingScreen();
+            return isFull
+                ? MultiplayerApp(
+                    roomId: widget.roomId,
+                    isTurn: widget.isTurn,
+                    player: widget.player,
+                  )
+                : _buildWaitingScreen();
           }
         },
       ),

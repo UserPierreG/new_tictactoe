@@ -16,8 +16,33 @@ class DatabaseService {
       'turnIndex': room.turnIndex,
       'player1': player.toMap(),
       'player2': null,
+      'coordinates': null,
     });
     return roomId;
+  }
+
+  Future<void> sendCoordinates(String roomId, int row, int column) async {
+    await FirebaseFirestore.instance.collection('rooms').doc(roomId).update({
+      'coordinates': {'row': row, 'column': column}
+    });
+    print('sent row: ${row} col: ${column}');
+  }
+
+  Stream<List<int>> listenForCoordinates(String roomId) {
+    return FirebaseFirestore.instance
+        .collection('rooms')
+        .doc(roomId)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.exists) {
+        final data = snapshot.data();
+        final roomCoordinates = data!['coordinates'];
+        if (roomCoordinates != null) {
+          return [roomCoordinates['row'], roomCoordinates['column']];
+        }
+      }
+      return [];
+    });
   }
 
   Future<String?> joinRoom(String roomId, Player player) async {
@@ -38,6 +63,28 @@ class DatabaseService {
     } else {
       return null; // Room not found
     }
+  }
+
+  void startListeningToCoordinates(Function(bool?) onHitResult) {
+    _firestore.collection('coordinates').snapshots().listen((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        var document = snapshot.docs.first;
+        int? receivedRow = document['row'];
+        int? receivedColumn = document['column'];
+        // Determine hit or miss based on game logic (e.g., hardcoding hit for demonstration)
+        bool isHit = _isHit(receivedRow, receivedColumn);
+        // Send the result back to the sender
+        _firestore.collection('isHit').add({'isHit': isHit});
+        // Pass the hit result to the callback function
+        onHitResult(isHit);
+      }
+    });
+  }
+
+  bool _isHit(int? row, int? column) {
+    // Implement your game logic here
+    // For demonstration, let's assume a hardcoded hit
+    return true;
   }
 
   Stream<bool> roomStatusStream(String roomId) {

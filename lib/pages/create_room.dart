@@ -45,15 +45,16 @@ class CreateRoomScreen extends StatelessWidget {
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () async {
-                Player player =
-                    Player(nickname: _nameController.text, playerType: 'X');
+                Player player = Player(nickname: _nameController.text);
                 Room room = Room(player1: player);
+
+                print('Creating room (room, player) $room $player');
 
                 String roomId = await _databaseService.createRoom(room, player);
 
                 print('Room created with ID: $roomId');
 
-                _navigateToRoomScreen(context, roomId);
+                _navigateToRoomScreen(context, roomId, _nameController.text);
 
                 // List<Player> players = [];
                 // Player player = Player(
@@ -75,10 +76,16 @@ class CreateRoomScreen extends StatelessWidget {
     );
   }
 
-  void _navigateToRoomScreen(BuildContext context, String roomId) {
+  void _navigateToRoomScreen(
+      BuildContext context, String roomId, String player) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => GameRoom(roomId: roomId)),
+      MaterialPageRoute(
+          builder: (context) => GameRoom(
+                roomId: roomId,
+                isTurn: true,
+                player: player,
+              )),
     );
   }
 }

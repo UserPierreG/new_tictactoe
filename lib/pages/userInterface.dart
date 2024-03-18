@@ -10,11 +10,11 @@ import 'dart:math';
 import 'package:new_tictacto/pages/home_page.dart';
 
 class GameLogic {
-  late Player player1;
-  late Player player2;
+  late final Player player1;
+  late final Player player2;
   late bool isPlayerTurn;
-  late Function onCPUMove; // Callback function to trigger UI update
-  late Function onGameOver; // Callback function to handle game over
+  late final Function onCPUMove; // Callback function to trigger UI update
+  late final Function onGameOver; // Callback function to handle game over
 
   GameLogic({required this.onCPUMove, required this.onGameOver}) {
     print('New Game Started');
@@ -35,7 +35,7 @@ class GameLogic {
   }
 
   bool bombSquare(Square square, Board board) {
-    String message;
+    final String message;
     if (square.status == SquareStatus.miss ||
         square.status == SquareStatus.hit ||
         square.status == SquareStatus.sunk) {
@@ -225,7 +225,7 @@ class _BattleshipAppState extends State<BattleshipApp> {
                       child: BoardWidget(
                         game: game,
                         board: game.player2.board,
-                        visibleShips: true,
+                        visibleShips: false,
                       ),
                     ),
                   ],
@@ -240,7 +240,7 @@ class _BattleshipAppState extends State<BattleshipApp> {
 }
 
 class BoardWidget extends StatelessWidget {
-  late GameLogic game;
+  late final GameLogic game;
   late Board board;
   final bool visibleShips;
 

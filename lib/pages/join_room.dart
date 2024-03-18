@@ -55,14 +55,13 @@ class JoinRoomScreen extends StatelessWidget {
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () async {
-                Player player =
-                    Player(nickname: _nameController.text, playerType: 'O');
+                Player player = Player(nickname: _nameController.text);
                 String? roomId = await _databaseService.joinRoom(
                     _roomController.text, player);
                 if (roomId != null) {
                   print('Joined room with ID: ${_roomController.text}');
 
-                  _navigateToRoomScreen(context, roomId);
+                  _navigateToRoomScreen(context, roomId, _nameController.text);
                 } else {
                   print('Room not found');
                 }
@@ -75,10 +74,13 @@ class JoinRoomScreen extends StatelessWidget {
     );
   }
 
-  void _navigateToRoomScreen(BuildContext context, String roomId) {
+  void _navigateToRoomScreen(
+      BuildContext context, String roomId, String player) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => GameRoom(roomId: roomId)),
+      MaterialPageRoute(
+          builder: (context) =>
+              GameRoom(roomId: roomId, isTurn: false, player: player)),
     );
   }
 }
