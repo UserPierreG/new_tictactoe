@@ -1,65 +1,34 @@
-// ignore_for_file: library_private_types_in_public_api, avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:new_tictacto/game/board.dart';
-import 'package:new_tictacto/game/player.dart';
 import 'package:new_tictacto/game/square.dart';
-import 'dart:async';
-import 'dart:math';
-import 'package:new_tictacto/services/databaseServices.dart';
-import 'package:new_tictacto/pages/home_page.dart';
+import 'package:new_tictacto/pages/gameLogic.dart';
 
 class MultiplayerApp extends StatefulWidget {
   static String routeName = '/multiplayer-page';
   final String roomId;
-  bool isTurn;
+  final bool isTurn;
   final String player;
 
-  MultiplayerApp(
-      {super.key,
-      required this.roomId,
-      required this.isTurn,
-      required this.player});
+  const MultiplayerApp({
+    Key? key,
+    required this.roomId,
+    required this.isTurn,
+    required this.player,
+  }) : super(key: key);
 
   @override
-  _MultiplayerAppState createState() => _MultiplayerAppState();
+  State<MultiplayerApp> createState() => _MultiplayerAppState();
 }
 
 class _MultiplayerAppState extends State<MultiplayerApp> {
-  final DatabaseService _databaseService = DatabaseService();
-  late Board board1;
-  late Board board2;
-
-  void _navigateToHomePage(BuildContext context) {
-    Navigator.pushNamed(context, MainMenuScreen.routeName);
-  }
+  late GameLogic game;
 
   @override
   void initState() {
     super.initState();
-    initializeBoards();
-    if (!widget.isTurn) {
-      _databaseService
-          .listenForCoordinates(widget.roomId)
-          .listen((coordinates) {
-        if (coordinates.isNotEmpty) {
-          // Check if coordinates list is not empty
-          setState(() {
-            dropBomb(coordinates);
-          });
-        }
-      });
-    }
-  }
-
-  dropBomb(List<int> coords) {
-    board1.cells[coords[0]][coords[1]].status = SquareStatus.hit;
-  }
-
-  void initializeBoards() {
-    board1 = Board();
-    board2 = Board();
-    board1.placeShipRandomly();
+    print("INITIALISE");
+    game = GameLogic(
+        turn: widget.isTurn, player: widget.player, roomId: widget.roomId);
   }
 
   @override
@@ -88,9 +57,9 @@ class _MultiplayerAppState extends State<MultiplayerApp> {
                     IgnorePointer(
                       ignoring: true,
                       child: BoardWidget(
-                        board: board1,
+                        game: game,
+                        board: game.board1,
                         visibleShips: true,
-                        roomId: widget.roomId,
                       ),
                     ),
                   ],
@@ -112,9 +81,9 @@ class _MultiplayerAppState extends State<MultiplayerApp> {
                     IgnorePointer(
                       ignoring: false,
                       child: BoardWidget(
-                        board: board2,
+                        game: game,
+                        board: game.board2,
                         visibleShips: false,
-                        roomId: widget.roomId,
                       ),
                     ),
                   ],
@@ -129,16 +98,16 @@ class _MultiplayerAppState extends State<MultiplayerApp> {
 }
 
 class BoardWidget extends StatelessWidget {
-  late Board board;
+  final Board board;
   final bool visibleShips;
-  final String roomId;
+  final GameLogic game;
 
-  BoardWidget({
-    super.key,
+  const BoardWidget({
+    Key? key,
     required this.visibleShips,
     required this.board,
-    required this.roomId,
-  });
+    required this.game,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +122,7 @@ class BoardWidget extends StatelessWidget {
               row: index,
               col: index2,
               visibleShips: visibleShips,
-              roomId: roomId,
+              game: game,
             ),
           ),
         ),
@@ -162,44 +131,33 @@ class BoardWidget extends StatelessWidget {
   }
 }
 
-class SquareWidget extends StatefulWidget {
+class SquareWidget extends StatelessWidget {
   final Square square;
   final bool visibleShips;
   final int row;
   final int col;
-  final String roomId;
+  final GameLogic game;
 
-  final DatabaseService _databaseService = DatabaseService();
-
-  SquareWidget({
+  const SquareWidget({
     Key? key,
     required this.square,
     required this.visibleShips,
     required this.row,
     required this.col,
-    required this.roomId,
+    required this.game,
   }) : super(key: key);
 
-  void sendCoordinates(int row, int column) async {
-    _databaseService.sendCoordinates(roomId, row, column);
-  }
-
-  @override
-  _SquareWidgetState createState() => _SquareWidgetState();
-}
-
-class _SquareWidgetState extends State<SquareWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        widget.sendCoordinates(widget.row, widget.col);
+        game.sendCoordinates(row, col);
       },
       child: Container(
         width: 25,
         height: 25,
         decoration: BoxDecoration(
-          color: determineColour(widget.square),
+          color: determineColour(square),
           border: Border.all(color: Colors.black),
         ),
       ),
@@ -211,7 +169,7 @@ class _SquareWidgetState extends State<SquareWidget> {
       case SquareStatus.empty:
         return Colors.grey;
       case SquareStatus.ship:
-        return widget.visibleShips ? Colors.green : Colors.grey;
+        return visibleShips ? Colors.green : Colors.grey;
       case SquareStatus.hit:
         return Colors.orange;
       case SquareStatus.miss:

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:new_tictacto/models/player.dart';
 import 'package:new_tictacto/models/room.dart';
 import 'package:new_tictacto/pages/game_room.dart';
 import 'package:new_tictacto/services/databaseServices.dart';
@@ -45,12 +44,12 @@ class CreateRoomScreen extends StatelessWidget {
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () async {
-                Player player = Player(nickname: _nameController.text);
-                Room room = Room(player1: player);
+                Room room = Room(player1: _nameController.text);
 
-                print('Creating room (room, player) $room $player');
+                print(
+                    'Creating room (room, player) $room ${_nameController.text}');
 
-                String roomId = await _databaseService.createRoom(room, player);
+                String roomId = await _databaseService.createRoom(room);
 
                 print('Room created with ID: $roomId');
 

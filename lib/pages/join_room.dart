@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:new_tictacto/models/player.dart';
 import 'package:new_tictacto/pages/game_room.dart';
 import 'package:new_tictacto/services/databaseServices.dart';
 
@@ -55,9 +54,10 @@ class JoinRoomScreen extends StatelessWidget {
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () async {
-                Player player = Player(nickname: _nameController.text);
+                print('here2');
                 String? roomId = await _databaseService.joinRoom(
-                    _roomController.text, player);
+                    _roomController.text, _nameController.text);
+                print('here3');
                 if (roomId != null) {
                   print('Joined room with ID: ${_roomController.text}');
 

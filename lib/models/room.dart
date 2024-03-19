@@ -1,43 +1,41 @@
-// ignore_for_file: file_names
-
-import 'package:new_tictacto/models/player.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Room {
-  final int currentRound;
   final bool isFull;
-  final int maxRounds;
   final int turnIndex;
-  final Player player1;
-  final Player? player2;
+  final String player1;
+  final String? player2;
+  final String? response;
+  final DateTime? timestamp;
 
   Room({
-    this.currentRound = 1, // default value for currentRound
-    this.isFull = false, // default value for isFull
-    this.maxRounds = 6, // default value for maxRounds
-    this.turnIndex = 0, // default value for turnIndex
+    this.isFull = false,
+    this.turnIndex = 0,
     required this.player1,
+    this.timestamp,
     this.player2,
+    this.response,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'currentRound': currentRound,
       'isFull': isFull,
-      'maxRounds': maxRounds,
       'turnIndex': turnIndex,
-      'player1': player1.toMap(),
-      'player2': player2?.toMap(),
+      'player1': player1,
+      'player2': player2,
+      'response': response,
+      'timestamp': Timestamp.fromDate(timestamp!),
     };
   }
 
   factory Room.fromMap(Map<String, dynamic> map) {
     return Room(
-      currentRound: map['currentRound'],
-      isFull: map['isFull'],
-      maxRounds: map['maxRounds'],
-      turnIndex: map['turnIndex'],
-      player1: Player.fromMap(map['player1']),
-      player2: map['player2'] != null ? Player.fromMap(map['player2']) : null,
+      timestamp: map['timestamp'].toDate(),
+      isFull: map['isFull'] as bool,
+      turnIndex: map['turnIndex'] as int,
+      player1: map['player1'] as String,
+      player2: map['player2'] as String?,
+      response: map['response'] as String?,
     );
   }
 }
