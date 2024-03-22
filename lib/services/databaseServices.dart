@@ -11,63 +11,90 @@ class DatabaseService {
     String roomId = _generateRoomCode();
     await _firestore.collection('rooms').doc(roomId).set({
       'isFull': room.isFull,
-      'turnIndex': room.turnIndex,
       'player1': room.player1,
       'player2': null,
-      'coordinates': null,
-      'response': null,
-      'timestamp': DateTime.now(), // Include timestamp field with current time
     });
     return roomId;
   }
 
-  Future<void> sendResponse(String roomId, String response) async {
-    await FirebaseFirestore.instance.collection('rooms').doc(roomId).update({
-      'response': response,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
-    print('send response: ${response}');
-  }
-
   Future<void> sendCoordinates(String roomId, int row, int column) async {
-    await FirebaseFirestore.instance.collection('rooms').doc(roomId).update({
-      'coordinates': {'row': row, 'column': column},
-      'timestamp': FieldValue.serverTimestamp(), // Add server timestamp
-    });
-    print('sent row: $row col: $column');
+    try {
+      await FirebaseFirestore.instance
+          .collection('rooms')
+          .doc(roomId)
+          .collection('data')
+          .doc('coordinates')
+          .set(
+              {
+            'row': row,
+            'column': column,
+            'timestamp': FieldValue.serverTimestamp(),
+          },
+              SetOptions(
+                  merge:
+                      true)); // Use merge option to merge with existing document if it exists
+    } catch (e) {
+      // Handle any errors that occur during the update process
+      print('Error sending coordinates: $e');
+      throw e; // Rethrow the error for handling at the caller level if necessary
+    }
   }
 
   Stream<List<int>> listenForCoordinates(String roomId) {
     return FirebaseFirestore.instance
         .collection('rooms')
         .doc(roomId)
+        .collection('data')
+        .doc('coordinates')
         .snapshots()
         .map((snapshot) {
       if (snapshot.exists) {
         final data = snapshot.data();
-        final roomCoordinates = data!['coordinates'];
-        if (roomCoordinates != null) {
-          return [roomCoordinates['row'], roomCoordinates['column']];
+        if (data != null &&
+            data.containsKey('row') &&
+            data.containsKey('column')) {
+          final int row = data['row'];
+          final int column = data['column'];
+          return [row, column];
         }
       }
       return [];
     });
   }
 
-  Stream<String?> listenForResponse(String roomId) {
+  Future<void> sendResponse(String roomId, bool response) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('rooms')
+          .doc(roomId)
+          .collection('data')
+          .doc('response')
+          .set({
+        'isHit': response,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      // Handle any errors that occur during the update process
+      print('Error sending response: $e');
+      throw e; // Rethrow the error for handling at the caller level if necessary
+    }
+  }
+
+  Stream<bool?> listenForResponse(String roomId) {
     return FirebaseFirestore.instance
         .collection('rooms')
         .doc(roomId)
+        .collection('data')
+        .doc('response')
         .snapshots()
         .map((snapshot) {
       if (snapshot.exists) {
         final data = snapshot.data();
-        final response = data!['response'];
-        if (response != null) {
-          return response;
+        if (data != null && data.containsKey('isHit')) {
+          return data['isHit'];
         }
       }
-      return null;
+      return null; // Return false if the document doesn't exist or 'isHit' is not present
     });
   }
 
@@ -83,9 +110,11 @@ class DatabaseService {
         });
         return roomId;
       } else {
+        print('error1');
         return null; // Room is already full
       }
     } else {
+      print('error2');
       return null; // Room not found
     }
   }

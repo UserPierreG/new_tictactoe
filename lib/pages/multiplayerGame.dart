@@ -23,12 +23,19 @@ class MultiplayerApp extends StatefulWidget {
 class _MultiplayerAppState extends State<MultiplayerApp> {
   late GameLogic game;
 
+  void refreshState() {
+    setState(() {}); // Trigger UI update after CPU move
+  }
+
   @override
   void initState() {
     super.initState();
     print("INITIALISE");
     game = GameLogic(
-        turn: widget.isTurn, player: widget.player, roomId: widget.roomId);
+        turn: widget.isTurn,
+        player: widget.player,
+        roomId: widget.roomId,
+        onUpdateGameState: refreshState);
   }
 
   @override

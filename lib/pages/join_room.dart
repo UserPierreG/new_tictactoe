@@ -54,10 +54,8 @@ class JoinRoomScreen extends StatelessWidget {
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () async {
-                print('here2');
                 String? roomId = await _databaseService.joinRoom(
                     _roomController.text, _nameController.text);
-                print('here3');
                 if (roomId != null) {
                   print('Joined room with ID: ${_roomController.text}');
 

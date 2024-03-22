@@ -10,77 +10,88 @@ class GameLogic {
   late bool turn;
   late final String player;
   late final String roomId;
-  late bool blockStream;
-  late bool responseStream;
-  int? row;
-  int? col;
+  late bool listenToResponse;
+  late bool listenToCords;
+  late int row;
+  late int col;
+  Function() onUpdateGameState;
 
   GameLogic({
     required this.turn,
     required this.player,
     required this.roomId,
+    required this.onUpdateGameState,
   }) {
-    blockStream = turn;
-    responseStream = turn;
-    _printStreamStatus();
     initialise();
+    row = 0;
+    col = 0;
   }
-
-  void _printStreamStatus() {
-    print('Stream is ${blockStream ? 'blocked' : 'NOT blocked'}');
-  }
-
-  bool isTurn() => turn;
 
   void initialise() {
     board1 = Board();
     board2 = Board();
     board1.placeShipRandomly();
-    _printInitialMessage();
-    startListening();
     startListeningToResponse();
-    print('Subscribed');
-  }
+    startListeningtoCords();
 
-  void _printInitialMessage() {
-    final action = isTurn() ? 'created the room' : 'joined';
-    print(
-        '$player $action, ${isTurn() ? 'getting ready to send coords' : 'started listening for coords'}');
+    if (turn) {
+      print('Listen to Cords = false');
+      listenToResponse = true;
+      print('Listen to Response = true');
+      listenToCords = false;
+    } else {
+      print('Listen to Response = false');
+      listenToResponse = false;
+      print('Listen to Cords = true');
+      listenToCords = true;
+    }
   }
 
   void startListeningToResponse() {
+    print('CALLING startListeningToResponse');
     _databaseService.listenForResponse(roomId).listen((response) {
-      if (response != null && responseStream) {
-        responseStream = false;
-        if (response == 'hit') {
-          print("received: $response hit");
-          board2.cells[row!][col!].status = SquareStatus.hit;
-        } else {
-          print("received: $response miss");
-          board2.cells[row!][col!].status = SquareStatus.miss;
-        }
+      if (response == null) {
+        print("RESPONSE NULL SO IS FILTERED");
       }
-    });
-  }
-
-  void startListening() {
-    _databaseService.listenForCoordinates(roomId).listen((coordinates) {
-      if (coordinates.isNotEmpty && !blockStream) {
-        blockStream = true;
-        print('Stream blocked');
-        dropBomb(coordinates);
-        Future.delayed(Duration(milliseconds: 500), () {
-          print('paused .5 sec before you can play');
-          responseStream = true;
-          changeTurn();
+      if (response != null && listenToResponse) {
+        print('HANDLE $response');
+        if (response) {
+          print("received: $response, hit");
+          board2.cells[row][col].status = SquareStatus.hit;
+        } else {
+          print("received: $response, miss");
+          board2.cells[row][col].status = SquareStatus.miss;
+        }
+        onUpdateGameState();
+        listenToResponse = false;
+        print('Listen to Response = false');
+        Future.delayed(Duration(milliseconds: 250), () {
+          listenToCords = true;
+          print('0.5sec pause');
+          print('Listen to Cords = true');
         });
       }
     });
   }
 
-  void changeTurn() {
-    print('Changing turn');
-    turn = !turn;
+  void startListeningtoCords() {
+    print('CALLING startListeningtoCords');
+    _databaseService.listenForCoordinates(roomId).listen((coordinates) {
+      if (coordinates.isNotEmpty && listenToCords) {
+        print('received cords: $coordinates');
+        dropBomb(coordinates);
+        print('Listen to Cords = false');
+        listenToCords = false;
+        Future.delayed(Duration(milliseconds: 500), () {
+          print('1sec pause');
+          listenToResponse = true;
+          print('Listen to Response = true');
+          print('play true');
+          turn = true;
+          print(' ');
+        });
+      }
+    });
   }
 
   void dropBomb(List<int> coords) {
@@ -90,11 +101,11 @@ class GameLogic {
     if (status == SquareStatus.empty) {
       board1.cells[coords[0]][coords[1]].status = SquareStatus.miss;
       print('sent MISS');
-      _databaseService.sendResponse(roomId, 'miss');
+      sendResponse(roomId, false);
     } else if (status == SquareStatus.ship) {
       board1.cells[coords[0]][coords[1]].status = SquareStatus.hit;
       print('sent HIT');
-      _databaseService.sendResponse(roomId, 'hit');
+      sendResponse(roomId, true);
       board1.cells[coords[0]][coords[1]].ship!.size--;
       if (board1.cells[coords[0]][coords[1]].ship!.isSunk()) {
         var ship = board1.cells[coords[0]][coords[1]].ship?.ship;
@@ -108,23 +119,28 @@ class GameLogic {
     } else {
       print('Already played square; try again!');
     }
+    onUpdateGameState();
+  }
+
+  void sendResponse(String roomId, bool response) {
+    print('CALLING SEND RESPONSE');
+    print('sent response: $response');
+    _databaseService.sendResponse(roomId, response);
+  }
+
+  void sendCords(String roomId, int row, int column) {
+    print('CALLING SEND CORDS');
+    print('sent cords: [$row, $column]');
+    _databaseService.sendCoordinates(roomId, row, column);
   }
 
   void sendCoordinates(int row, int column) {
-    if (isTurn()) {
+    if (turn) {
       this.row = row;
       this.col = column;
-      _databaseService.sendCoordinates(roomId, row, column);
-      changeTurn();
-      print('Sending coords');
-      _unblockStreamAfterDelay();
+      sendCords(roomId, row, column);
+      print('play off');
+      turn = false;
     }
-  }
-
-  void _unblockStreamAfterDelay() {
-    Future.delayed(Duration(milliseconds: 5000), () {
-      print('Stream unblocked after .5 seconds');
-      blockStream = false;
-    });
   }
 }
