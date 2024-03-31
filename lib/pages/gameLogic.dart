@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:new_tictacto/game/board.dart';
 import 'package:new_tictacto/game/square.dart';
